@@ -130,20 +130,20 @@ def main():
             results = output[0]
 
             
-            if results[0].boxes.id is None:
+            if results.boxes.id is None:
                 cv2.imshow("CARLA YOLO", rgb)
                 cv2.waitKey(1)
-                return
+                continue
             
-            boxes = results[0].boxes.xywh.cpu()
-            track_ids = results[0].boxes.id.int().cpu().tolist()
-            conf_scores = results[0].boxes.conf.cpu().tolist()
-            boxes_class_ids = results[0].boxes.cls.int().cpu().tolist()
-            boxes_classnames = [results[0].names[class_id] for class_id in boxes_class_ids]
+            boxes = results.boxes.xywh.cpu()
+            track_ids = results.boxes.id.int().cpu().tolist()
+            conf_scores = results.boxes.conf.cpu().tolist()
+            boxes_class_ids = results.boxes.cls.int().cpu().tolist()
+            boxes_classnames = [results.names[class_id] for class_id in boxes_class_ids]
 
             frame = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
 
-            for box, track_id, conf in zip(boxes, track_ids, conf_scores):
+            for box, track_id, conf, class_name_new in zip(boxes, track_ids, conf_scores, boxes_classnames):
                 x_center = box[0].item()
                 y_center = box[1].item()
                 w        = box[2].item()
@@ -159,9 +159,9 @@ def main():
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
 
                 label = (
-                            f"{boxes_classnames} "
-                            f"ID:{track_ids} "
-                            f"{conf_scores:.2f}"
+                            f"{class_name_new} "
+                            f"ID:{track_id} "
+                            f"{conf:.2f}"
                         )
 
                 cv2.putText(
